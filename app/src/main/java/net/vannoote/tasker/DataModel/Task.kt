@@ -4,9 +4,9 @@ import java.lang.Exception
 import com.google.firebase.database.DataSnapshot
 
 class Task(snapshot: DataSnapshot) {
-    lateinit var id: String
-    lateinit var name: String
-    lateinit var period: String
+    var id: String = String()
+    var name: String = String()
+    var period: String = String()
 
     init {
         try {

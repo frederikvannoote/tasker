@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), Observer {
 
         private val mContext: Context
         private var database: DatabaseReference?
-        private val names = arrayListOf<String>()
+        private val mTasks: ArrayList<Task> = arrayListOf<Task>()
 
         init {
             mContext = context
@@ -77,12 +77,9 @@ class MainActivity : AppCompatActivity(), Observer {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         // This method is called once with the initial value and again
                         // whenever data at this location is updated.
-                        val value = dataSnapshot.value
-                        Log.d("Main", "Value is: $value")
-
-                        names.clear()
-                        for (dataValues in dataSnapshot.children) {
-                            names.add(dataValues.child("name").value.toString())
+                        mTasks.clear()
+                        for (child in dataSnapshot.children) {
+                            mTasks.add(Task(child))
                         }
 
                         notifyDataSetChanged()
@@ -107,9 +104,9 @@ class MainActivity : AppCompatActivity(), Observer {
             val row = layoutInflater.inflate(R.layout.task_main, viewGroup, false)
 
             val name = row.findViewById<TextView>(R.id.name_textView)
-            name.text = names.get(position)
+            name.text = mTasks[position].name
             val due = row.findViewById<TextView>(R.id.due_textView)
-            due.text = "Morgen"
+            due.text = mTasks[position].period
 
             return row
         }
@@ -123,7 +120,7 @@ class MainActivity : AppCompatActivity(), Observer {
         }
 
         override fun getCount(): Int {
-            return names.size
+            return mTasks.size
         }
 
         public fun getDatabaseRef(): DatabaseReference? {
