@@ -1,4 +1,4 @@
-package net.vannoote.tasker.DataModel
+package net.vannoote.tasker.datamodel
 
 import android.util.Log
 import com.google.firebase.database.*
@@ -31,7 +31,7 @@ object TaskModel: Observable() {
                     if (snapshot != null) {
                         for (sn: DataSnapshot in snapshot.children) {
                             try {
-                                data.add(Task(sn))
+//                                data.add(Task(sn))
                             } catch (e: Exception) {
                                 e.printStackTrace()
                             }
