@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         val transaction = supportFragmentManager.beginTransaction()
         val fragment = AddFragment(this)
         transaction.replace(R.id.main_holder, fragment)
+        transaction.addToBackStack("test")
         transaction.commit()
     }
 }
