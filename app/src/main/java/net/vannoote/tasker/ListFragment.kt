@@ -48,7 +48,7 @@ class ListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         val view = inflater.inflate(R.layout.fragment_list, container, false)
         view.main_tasklist.adapter = mTaskListAdaptor
 
-        // Add screen button
+        // To 'Add' screen
         view.fab.setOnClickListener { mInteraction.showAddScreen() }
 
         return view

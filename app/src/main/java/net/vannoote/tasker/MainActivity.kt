@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
 
     override fun showAddScreen() {
         val transaction = supportFragmentManager.beginTransaction()
-        val fragment = AddFragment()
+        val fragment = AddFragment(this)
         transaction.replace(R.id.main_holder, fragment)
         transaction.commit()
     }

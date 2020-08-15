@@ -9,19 +9,27 @@ import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import kotlinx.android.synthetic.main.fragment_add.view.*
 
 /**
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class AddFragment : Fragment() {
+class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
+
+    private var mInteraction: TaskerInteraction = taskerInteraction
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_add, container, false)
+        val view = inflater.inflate(R.layout.fragment_add, container, false)
+
+        // Add entry. Return to list fragment
+        view.add.setOnClickListener { mInteraction.showListScreen() }
+
+        return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
