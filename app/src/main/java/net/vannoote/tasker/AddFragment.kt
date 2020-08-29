@@ -2,6 +2,7 @@ package net.vannoote.tasker
 
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,9 @@ import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.android.synthetic.main.fragment_add.*
 import kotlinx.android.synthetic.main.fragment_add.view.*
 
 /**
@@ -27,7 +31,10 @@ class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         val view = inflater.inflate(R.layout.fragment_add, container, false)
 
         // Add entry. Return to list fragment
-        view.add.setOnClickListener { mInteraction.showListScreen() }
+        view.add.setOnClickListener {
+            addEntry()
+            mInteraction.showListScreen()
+        }
 
         return view
     }
@@ -50,6 +57,36 @@ class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
 
     override fun onDestroy() {
         super.onDestroy()
+    }
+
+    private fun addEntry() {
+        val tasks = getDatabaseRef()?.child("tasks")
+        if (tasks != null) {
+            var task = HashMap<String, String>()
+            task.put("name", name.text.toString())
+            if (daily.isChecked) { task.put("period", "daily") }
+            if (weekly.isChecked) { task.put("period", "weekly") }
+            if (monthly.isChecked) { task.put("period", "monthly") }
+            if (quarterly.isChecked) { task.put("period", "quarterly") }
+            if (halfyearly.isChecked) { task.put("period", "halfyearly") }
+            if (yearly.isChecked) { task.put("period", "yearly") }
+
+            val key = tasks.push().key
+            if (key == null) {
+                Log.w("Database", "Couldn't get push key for posts")
+                return
+            }
+
+            val childUpdates = hashMapOf<String, Any>(
+                "/$key" to task
+            )
+
+            tasks.updateChildren(childUpdates)
+        }
+    }
+
+    public fun getDatabaseRef(): DatabaseReference? {
+        return FirebaseDatabase.getInstance().reference
     }
 
     private fun hide() {
