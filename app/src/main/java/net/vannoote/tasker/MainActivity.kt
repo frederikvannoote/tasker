@@ -24,7 +24,6 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.database.*
 import net.vannoote.tasker.datamodel.Task
-import net.vannoote.tasker.datamodel.TaskModel
 import net.vannoote.tasker.TaskerInteraction
 import java.time.LocalDate
 import java.time.LocalDate.now

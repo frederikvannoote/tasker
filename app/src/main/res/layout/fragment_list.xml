@@ -7,11 +7,11 @@
     android:background="#0099cc"
     tools:context=".ListFragment">
 
-    <ListView
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/main_tasklist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#FFFFFF"></ListView>
+        android:layout_height="match_parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

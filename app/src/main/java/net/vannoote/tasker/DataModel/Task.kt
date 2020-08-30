@@ -14,50 +14,27 @@ import kotlin.collections.HashMap
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-class Task(snapshot: DataSnapshot, alarmManager: AlarmManager, context: Context) {
-    var id: String = String()
-    var name: String = String()
-    var period: String = String()
-    var lastExecuted: LocalDateTime? = null
+class Task(p_id: String, p_name: String, p_period: String, p_lastExecuted: LocalDateTime?) {
+    var id: String = p_id
+    var name: String = p_name
+    var period: String = p_period
+    var lastExecuted: LocalDateTime? = p_lastExecuted
     var nextExecution: LocalDate? = LocalDate.now()
 
     private var alarmReceiver: TaskAlarmReceiver = TaskAlarmReceiver()
 
     init {
-        try {
-            val data: HashMap<String, Any> = snapshot.value as HashMap<String, Any>
-
-            id = snapshot.key ?: ""
-            name = data["name"] as String
-            period = data["period"] as String
-            try {
-                if (data["lastExecuted"] != null)
-                {
-                    var le = LocalDateTime.parse(data["lastExecuted"] as String)
-                    lastExecuted = le
-                    if (lastExecuted != null) {
-                        when {
-                            period == "daily" -> nextExecution = le.toLocalDate().plusDays(1)
-                            period == "weekly" -> nextExecution = le.toLocalDate().plusWeeks(1)
-                            period == "monthly" -> nextExecution = le.toLocalDate().plusMonths(1)
-                            period == "quarterly" -> nextExecution = le.toLocalDate().plusMonths(3)
-                            period == "halfyearly" -> nextExecution = le.toLocalDate().plusMonths(6)
-                            period == "yearly" -> nextExecution = le.toLocalDate().plusYears(1)
-                        }
-                    }
-                }
-
-                Log.i("Tasks",
-                    "$name needs to be executed on $nextExecution. (Last: $lastExecuted)"
-                )
-                alarmReceiver.setAlarm(context, nextExecution)
+        if (lastExecuted != null) {
+            var le = lastExecuted
+            when {
+                period == "daily" -> nextExecution = le!!.toLocalDate().plusDays(1)
+                period == "weekly" -> nextExecution = le!!.toLocalDate().plusWeeks(1)
+                period == "monthly" -> nextExecution = le!!.toLocalDate().plusMonths(1)
+                period == "quarterly" -> nextExecution = le!!.toLocalDate().plusMonths(3)
+                period == "halfyearly" -> nextExecution = le!!.toLocalDate().plusMonths(6)
+                period == "yearly" -> nextExecution = le!!.toLocalDate().plusYears(1)
             }
-            catch (e: java.time.format.DateTimeParseException) {
-                e.printStackTrace()
-            }
-        }
-        catch (e: Exception) {
-            e.printStackTrace()
+            Log.i("task", "$name will be next executed on $nextExecution")
         }
     }
 }
