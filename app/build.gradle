@@ -51,4 +51,5 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-database:6.3.0'
     implementation 'org.jetbrains.anko:anko-common:0.8.3'
     apply plugin: 'com.google.gms.google-services'
+    implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.1'
 }
