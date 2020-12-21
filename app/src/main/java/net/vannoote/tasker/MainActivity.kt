@@ -1,6 +1,6 @@
 package net.vannoote.tasker
 
-import android.app.AlarmManager
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
@@ -8,34 +8,23 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import android.widget.BaseAdapter
-import android.widget.ListView
-import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.getSystemService
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
+import com.firebase.ui.auth.AuthUI
+import com.firebase.ui.auth.IdpResponse
+import com.firebase.ui.auth.viewmodel.RequestCodes.GOOGLE_PROVIDER
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
-import net.vannoote.tasker.datamodel.Task
-import net.vannoote.tasker.TaskerInteraction
-import java.time.LocalDate
-import java.time.LocalDate.now
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
     private lateinit var database: DatabaseReference
     private var manager = supportFragmentManager
-
+    private val RC_SIGN_IN = 1307 //the request code could be any Integer
+    private val auth = FirebaseAuth.getInstance()!!
     private var CHANNEL_ID: String = "tasker"
+    private var LOGTAG = "Main"
+    private var user: FirebaseUser? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,7 +33,28 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
 
         createNotificationChannel()
 
-        showListScreen()
+        if(auth.currentUser != null){ //If user is signed in
+            user = FirebaseAuth.getInstance().currentUser
+
+            Log.d(LOGTAG, "User " + user?.displayName + " is signed in")
+            showListScreen()
+        }
+        else {
+            Log.d(LOGTAG, "User is not signed in. Switch to login activity...")
+            val providers = arrayListOf(
+                AuthUI.IdpConfig.EmailBuilder().build(),
+                AuthUI.IdpConfig.GoogleBuilder().build()
+            )
+
+            // Create and launch sign-in intent
+            startActivityForResult(
+                AuthUI.getInstance()
+                    .createSignInIntentBuilder()
+                    .setAvailableProviders(providers)
+                    .build(),
+                RC_SIGN_IN
+            )
+        }
     }
 
     override fun update(p0: Observable?, p1: Any?) {
@@ -74,6 +84,13 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         }
     }
 
+    private fun showLoginScreen() {
+        val transaction = supportFragmentManager.beginTransaction()
+        val fragment = LoginFragment()
+        transaction.replace(R.id.main_holder, fragment)
+        transaction.commit()
+    }
+
     override fun showListScreen() {
         val transaction = supportFragmentManager.beginTransaction()
         val fragment = ListFragment(this)
@@ -87,5 +104,27 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         transaction.replace(R.id.main_holder, fragment)
         transaction.addToBackStack("test")
         transaction.commit()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val response = IdpResponse.fromResultIntent(data)
+
+            if (resultCode == 0) {
+                // Successfully signed in
+                user = FirebaseAuth.getInstance().currentUser
+
+                // ...
+                showListScreen()
+            } else {
+                showListScreen()
+                // Sign in failed. If response is null the user canceled the
+                // sign-in flow using the back button. Otherwise check
+                // response.getError().getErrorCode() and handle the error.
+                // ...
+            }
+        }
     }
 }
