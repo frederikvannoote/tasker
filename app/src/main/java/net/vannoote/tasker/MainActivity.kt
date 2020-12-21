@@ -8,20 +8,22 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
-import com.firebase.ui.auth.viewmodel.RequestCodes.GOOGLE_PROVIDER
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
 import java.util.*
 
+
 class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
     private lateinit var database: DatabaseReference
     private var manager = supportFragmentManager
     private val RC_SIGN_IN = 1307 //the request code could be any Integer
-    private val auth = FirebaseAuth.getInstance()!!
+    private val auth = FirebaseAuth.getInstance()
     private var CHANNEL_ID: String = "tasker"
     private var LOGTAG = "Main"
     private var user: FirebaseUser? = null
@@ -29,31 +31,17 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//        setSupportActionBar(findViewById(R.id.toolbar))
+        setSupportActionBar(findViewById(R.id.toolbar))
 
         createNotificationChannel()
 
         if(auth.currentUser != null){ //If user is signed in
             user = FirebaseAuth.getInstance().currentUser
-
             Log.d(LOGTAG, "User " + user?.displayName + " is signed in")
             showListScreen()
         }
         else {
-            Log.d(LOGTAG, "User is not signed in. Switch to login activity...")
-            val providers = arrayListOf(
-                AuthUI.IdpConfig.EmailBuilder().build(),
-                AuthUI.IdpConfig.GoogleBuilder().build()
-            )
-
-            // Create and launch sign-in intent
-            startActivityForResult(
-                AuthUI.getInstance()
-                    .createSignInIntentBuilder()
-                    .setAvailableProviders(providers)
-                    .build(),
-                RC_SIGN_IN
-            )
+            showLogin()
         }
     }
 
@@ -106,6 +94,23 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         transaction.commit()
     }
 
+    private fun showLogin() {
+        Log.d(LOGTAG, "User is not signed in. Switch to login activity...")
+        val providers = arrayListOf(
+                AuthUI.IdpConfig.EmailBuilder().build(),
+                AuthUI.IdpConfig.GoogleBuilder().build()
+        )
+
+        // Create and launch sign-in intent
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                RC_SIGN_IN
+        )
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -125,6 +130,34 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
                 // response.getError().getErrorCode() and handle the error.
                 // ...
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+//        R.id.action_settings -> {
+//            // User chose the "Settings" item, show the app settings UI...
+//            true
+//        }
+
+        R.id.logout -> {
+            // User chose the "Logout" action
+
+            Log.d(LOGTAG, "User is logging out")
+            auth.signOut()
+            user = null
+            showLogin()
+            true
+        }
+
+        else -> {
+            // If we got here, the user's action was not recognized.
+            // Invoke the superclass to handle it.
+            super.onOptionsItemSelected(item)
         }
     }
 }
