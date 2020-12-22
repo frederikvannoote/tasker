@@ -30,12 +30,13 @@ import java.time.LocalDateTime
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class ListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
+class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fragment() {
 
     private var visible: Boolean = false
     private var taskListAdaptor: TaskAdapter? = null
     private var mInteraction: TaskerInteraction = taskerInteraction
     private var removedTask: Task? = null
+    private var groupId: String = p_groupId
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,7 +54,7 @@ class ListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         list.layoutManager = LinearLayoutManager(this.context)
 
         val options: FirebaseRecyclerOptions<Task> = FirebaseRecyclerOptions.Builder<Task>()
-            .setQuery(FirebaseDatabase.getInstance().reference.child("tasks"), TaskParser())
+            .setQuery(FirebaseDatabase.getInstance().reference.child("groups/$groupId/tasks"), TaskParser())
             .build()
 
         taskListAdaptor = TaskAdapter(options)
@@ -133,7 +134,7 @@ class ListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         itemTouchHelper.attachToRecyclerView(list)
 
         // To 'Add' screen
-        view.fab.setOnClickListener { mInteraction.showAddScreen() }
+        view.fab.setOnClickListener { mInteraction.showAddScreen(groupId) }
 
         return view
     }

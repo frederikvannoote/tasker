@@ -13,14 +13,16 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.IdpResponse
+import com.google.firebase.FirebaseError
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.*
+import net.vannoote.tasker.datamodel.User
 import java.util.*
 
 
 class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
-    private lateinit var database: DatabaseReference
+    private val database = FirebaseDatabase.getInstance()
     private var manager = supportFragmentManager
     private val RC_SIGN_IN = 1307 //the request code could be any Integer
     private val auth = FirebaseAuth.getInstance()
@@ -37,8 +39,9 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
 
         if(auth.currentUser != null){ //If user is signed in
             user = FirebaseAuth.getInstance().currentUser
-            Log.d(LOGTAG, "User " + user?.displayName + " is signed in")
-            showListScreen()
+            Log.d(LOGTAG, "User " + user?.displayName + " with ID " + user?.uid + " is signed in")
+
+            readUserDetails(user?.uid)
         }
         else {
             showLogin()
@@ -72,23 +75,24 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         }
     }
 
-    private fun showLoginScreen() {
+    override fun showListScreen(groupId: String) {
         val transaction = supportFragmentManager.beginTransaction()
-        val fragment = LoginFragment()
+        val fragment = ListFragment(this, groupId)
         transaction.replace(R.id.main_holder, fragment)
         transaction.commit()
     }
 
-    override fun showListScreen() {
+    override fun showAddScreen(groupId: String) {
         val transaction = supportFragmentManager.beginTransaction()
-        val fragment = ListFragment(this)
+        val fragment = AddFragment(this, groupId)
         transaction.replace(R.id.main_holder, fragment)
+        transaction.addToBackStack("test")
         transaction.commit()
     }
 
-    override fun showAddScreen() {
+    private fun showAddTaskListScreen() {
         val transaction = supportFragmentManager.beginTransaction()
-        val fragment = AddFragment(this)
+        val fragment = AddTaskListFragment(this)
         transaction.replace(R.id.main_holder, fragment)
         transaction.addToBackStack("test")
         transaction.commit()
@@ -111,6 +115,27 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         )
     }
 
+    private fun readUserDetails(userId: String?) {
+        val usersRef = database.reference.child("users/$userId")
+        usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {
+                Log.e(LOGTAG, "Error while querying user details: " + error.message)
+            }
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val user = snapshot.getValue<User>(User::class.java)
+                if (user != null) {
+                    Log.d(LOGTAG, "User ID " + userId + "belongs to group" + user.group)
+
+                    showListScreen(user.group)
+                }
+                else {
+                    showAddTaskListScreen()
+                }
+            }
+        })
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -121,10 +146,11 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
                 // Successfully signed in
                 user = FirebaseAuth.getInstance().currentUser
 
-                // ...
-                showListScreen()
+                // Read user details
+                readUserDetails(user?.uid)
+
             } else {
-                showListScreen()
+                //showListScreen()
                 // Sign in failed. If response is null the user canceled the
                 // sign-in flow using the back button. Otherwise check
                 // response.getError().getErrorCode() and handle the error.

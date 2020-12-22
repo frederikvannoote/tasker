@@ -19,9 +19,10 @@ import kotlinx.android.synthetic.main.fragment_add.view.*
  * An example full-screen fragment that shows and hides the system UI (i.e.
  * status bar and navigation/system bar) with user interaction.
  */
-class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
+class AddFragment(taskerInteraction: TaskerInteraction, groupId: String) : Fragment() {
 
     private var mInteraction: TaskerInteraction = taskerInteraction
+    private var mGroupId: String = groupId
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -33,7 +34,7 @@ class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         // Add entry. Return to list fragment
         view.add.setOnClickListener {
             addEntry()
-            mInteraction.showListScreen()
+            mInteraction.showListScreen(mGroupId)
         }
 
         return view
@@ -60,7 +61,7 @@ class AddFragment(taskerInteraction: TaskerInteraction) : Fragment() {
     }
 
     private fun addEntry() {
-        val tasks = getDatabaseRef()?.child("tasks")
+        val tasks = getDatabaseRef()?.child("groups/$mGroupId/tasks")
         if (tasks != null) {
             var task = HashMap<String, String>()
             task.put("name", name.text.toString())
