@@ -174,9 +174,12 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
             // User chose the "Logout" action
 
             Log.d(LOGTAG, "User is logging out")
-            auth.signOut()
-            user = null
-            showLogin()
+            AuthUI.getInstance()
+                    .signOut(this)
+                    .addOnCompleteListener {
+                        user = null
+                        showLogin()
+                    }
             true
         }
 
