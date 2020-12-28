@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
 import kotlinx.android.synthetic.main.fragment_list.view.*
 import net.vannoote.tasker.datamodel.Task
@@ -37,15 +37,16 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
     private var mInteraction: TaskerInteraction = taskerInteraction
     private var removedTask: Task? = null
     private var groupId: String = p_groupId
+    private val LOGTAG = "List"
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_list, container, false)
 
@@ -53,20 +54,20 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
         val list = view.findViewById<RecyclerView>(R.id.main_tasklist)
         list.layoutManager = LinearLayoutManager(this.context)
 
-        val options: FirebaseRecyclerOptions<Task> = FirebaseRecyclerOptions.Builder<Task>()
+        val tasks: FirebaseRecyclerOptions<Task> = FirebaseRecyclerOptions.Builder<Task>()
             .setQuery(FirebaseDatabase.getInstance().reference.child("groups/$groupId/tasks"), TaskParser())
             .build()
 
-        taskListAdaptor = TaskAdapter(options)
+        taskListAdaptor = TaskAdapter(tasks)
         list.adapter = taskListAdaptor
 
         val itemTouchHelperCallback =
             object :
                 ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
                 override fun onMove(
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    target: RecyclerView.ViewHolder
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
                 ): Boolean {
                     return false
                 }
@@ -74,48 +75,61 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
                 @RequiresApi(Build.VERSION_CODES.O)
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                     val position: Int = viewHolder.adapterPosition
-
                     when {
                         direction == ItemTouchHelper.LEFT -> {
                             // Remove task
+                            val taskId = viewHolder.itemView.tag.toString()
+                            Log.i(LOGTAG, "User wants to remove task with ID $taskId")
+
+                            // Take snapshot for Undo functionality
                             removedTask = Task("id", "taskname", "daily", LocalDateTime.now())
 
-//                            FirebaseDatabase.getInstance().reference.child("tasks").
+                            // Remove from database
+                            val tasks = FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks")
+                            if (tasks != null) {
+                                tasks.child(taskId).removeValue()
+                            }
 
+                            // Remove from UI
                             taskListAdaptor!!.notifyItemRemoved(viewHolder.adapterPosition)
 
                             Toast.makeText(context,
-                                "deleted",
-                                Toast.LENGTH_SHORT
+                                    "deleted",
+                                    Toast.LENGTH_SHORT
                             ).show()
 
                             Snackbar.make(list, "Undo", Snackbar.LENGTH_LONG)
                                 .setAction("Undo", View.OnClickListener {
                                     fun onClick(view: View) {
                                         taskListAdaptor!!.notifyItemInserted(viewHolder.adapterPosition)
-
                                     }
                                 }).show()
                         }
                         direction == ItemTouchHelper.RIGHT -> {
+                            // Task was done
+                            val taskId = viewHolder.itemView.tag.toString()
+                            Log.i(LOGTAG, "User has executed task with ID $taskId")
+
+                            // Update last-executed field in database
+                            FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks/$taskId/lastExecuted").setValue(LocalDateTime.now().toString())
+
+                            // Show notification
                             Toast.makeText(context,
-                                "archived",
-                                Toast.LENGTH_SHORT
+                                    "archived",
+                                    Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
-//                    noteViewModel.delete(noteAdapter.getNoteAt(viewHolder.adapterPosition))
-
                 }
 
                 override fun onChildDraw(
-                    c: Canvas,
-                    recyclerView: RecyclerView,
-                    viewHolder: RecyclerView.ViewHolder,
-                    dX: Float,
-                    dY: Float,
-                    actionState: Int,
-                    isCurrentlyActive: Boolean
+                        c: Canvas,
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        dX: Float,
+                        dY: Float,
+                        actionState: Int,
+                        isCurrentlyActive: Boolean
                 ) {
                     RecyclerViewSwipeDecorator.Builder(context, c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
                         .addSwipeLeftBackgroundColor(ContextCompat.getColor(context!!, R.color.removeTask))

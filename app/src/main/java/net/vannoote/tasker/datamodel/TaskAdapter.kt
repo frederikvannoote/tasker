@@ -31,6 +31,7 @@ class TaskAdapter(options: FirebaseRecyclerOptions<Task>) : FirebaseRecyclerAdap
     override fun onBindViewHolder(holder: TaskHolder, position: Int, model: Task) {
         holder.name.text = model.name
         holder.due.text = beautifyDate(model.nextExecution)
+        holder.setId(model.id)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -47,5 +48,13 @@ class TaskAdapter(options: FirebaseRecyclerOptions<Task>) : FirebaseRecyclerAdap
     class TaskHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         var name = itemView.findViewById<TextView>(R.id.name_textView)!!
         var due = itemView.findViewById<TextView>(R.id.due_textView)!!
+        private val mItemView = itemView
+
+        fun setId(id: String) {
+            mItemView.tag = id
+        }
+        fun getId(): String? {
+            return mItemView.tag.toString()
+        }
     }
 }
