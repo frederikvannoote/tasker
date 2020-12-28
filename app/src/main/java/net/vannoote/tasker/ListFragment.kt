@@ -19,10 +19,13 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import it.xabaras.android.recyclerview.swipedecorator.RecyclerViewSwipeDecorator
+import kotlinx.android.synthetic.main.fragment_add_task_list.*
 import kotlinx.android.synthetic.main.fragment_list.view.*
+import kotlinx.android.synthetic.main.task_main.view.*
 import net.vannoote.tasker.datamodel.Task
 import net.vannoote.tasker.datamodel.TaskAdapter
 import net.vannoote.tasker.datamodel.TaskParser
+import net.vannoote.tasker.datamodel.User
 import java.time.LocalDateTime
 
 
@@ -35,7 +38,7 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
     private var visible: Boolean = false
     private var taskListAdaptor: TaskAdapter? = null
     private var mInteraction: TaskerInteraction = taskerInteraction
-    private var removedTask: Task? = null
+    private var removedTask: Map<String, Any>? = null
     private var groupId: String = p_groupId
     private val LOGTAG = "List"
 
@@ -82,7 +85,16 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
                             Log.i(LOGTAG, "User wants to remove task with ID $taskId")
 
                             // Take snapshot for Undo functionality
-                            removedTask = Task("id", "taskname", "daily", LocalDateTime.now())
+                            val ref = FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks/$taskId")
+                            ref.addListenerForSingleValueEvent(object : ValueEventListener {
+                                override fun onCancelled(error: DatabaseError) {
+                                    Log.e(LOGTAG, "Error while querying task details: " + error.message)
+                                }
+
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    removedTask = snapshot.value as Map<String, Any>
+                                }
+                            })
 
                             // Remove from database
                             val tasks = FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks")
@@ -98,11 +110,13 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
                                     Toast.LENGTH_SHORT
                             ).show()
 
-                            Snackbar.make(list, "Undo", Snackbar.LENGTH_LONG)
-                                .setAction("Undo", View.OnClickListener {
-                                    fun onClick(view: View) {
+                            Snackbar.make(list, R.string.undo, Snackbar.LENGTH_LONG)
+                                .setAction(R.string.undo, View.OnClickListener {
+                                        Log.i(LOGTAG, "Re-adding task with ID $taskId")
+                                        FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks/$taskId").setValue(removedTask)
+
                                         taskListAdaptor!!.notifyItemInserted(viewHolder.adapterPosition)
-                                    }
+
                                 }).show()
                         }
                         direction == ItemTouchHelper.RIGHT -> {
