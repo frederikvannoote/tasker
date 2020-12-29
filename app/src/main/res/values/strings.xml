@@ -12,4 +12,5 @@
     <string name="task_list_intro">Let\'s start by giving your task list a name.</string>
     <string name="task_list">Task list</string>
     <string name="logout">Logout</string>
+    <string name="add_task">Add task to list</string>
 </resources>
