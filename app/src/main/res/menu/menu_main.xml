@@ -2,11 +2,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="net.vannoote.tasker.MainActivity">
-    <!--<item
-        android:id="@+id/action_settings"
+
+    <item
+        android:id="@+id/action_share"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />-->
+        android:title="@string/share_list_title"
+        android:icon="@android:drawable/ic_menu_share"
+        app:showAsAction="ifRoom" />
 
     <item android:id="@+id/logout"
         android:title="@string/logout"

@@ -29,6 +29,7 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
     private var CHANNEL_ID: String = "tasker"
     private var LOGTAG = "Main"
     private var user: FirebaseUser? = null
+    private var groupId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +116,14 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
         )
     }
 
+    fun showShareScreen(groupId: String) {
+        val transaction = supportFragmentManager.beginTransaction()
+        val fragment = ShareListFragment(groupId)
+        transaction.replace(R.id.main_holder, fragment)
+        transaction.addToBackStack("test")
+        transaction.commit()
+    }
+
     private fun readUserDetails(userId: String?) {
         val usersRef = database.reference.child("users/$userId")
         usersRef.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -126,6 +135,7 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
                 val user = snapshot.getValue<User>(User::class.java)
                 if (user != null) {
                     Log.d(LOGTAG, "User ID " + userId + "belongs to group" + user.group)
+                    groupId = user.group
 
                     showListScreen(user.group)
                 }
@@ -165,10 +175,12 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
     }
 
     override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
-//        R.id.action_settings -> {
-//            // User chose the "Settings" item, show the app settings UI...
-//            true
-//        }
+
+        R.id.action_share -> {
+            // User chose the "Share" item, show the list share UI...
+            groupId?.let { showShareScreen(it) }
+            true
+        }
 
         R.id.logout -> {
             // User chose the "Logout" action
