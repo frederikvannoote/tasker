@@ -5,43 +5,96 @@
     android:id="@+id/frameLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddGroupFragment">
+    tools:context=".AddTaskListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:id="@+id/intro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/task_list_intro"
-        app:layout_constraintBottom_toTopOf="@+id/name_layout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/name_layout"
+    <LinearLayout
+        android:id="@+id/create_task_list_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/task_list"
-        app:layout_constraintBottom_toTopOf="@+id/add_group"
+        android:layout_margin="20sp"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:padding="30sp"
+        app:layout_constraintBottom_toTopOf="@+id/join_task_list_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/intro">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/tasklistname"
+        <TextView
+            android:id="@+id/create_new"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_new_task_list"
+            android:textSize="24sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/name_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_height="wrap_content"
+            android:hint="@string/task_list">
 
-    <Button
-        android:id="@+id/add_group"
-        android:layout_width="wrap_content"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/tasklistname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/add_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/create_new" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/join_task_list_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/next"
+        android:layout_margin="20sp"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical"
+        android:padding="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/name_layout" />
+        app:layout_constraintTop_toBottomOf="@id/create_task_list_layout">
+
+        <TextView
+            android:id="@+id/join_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/already_got_task_list"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/join_task_list"
+            android:textSize="24sp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/existing_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20sp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/task_list_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/task_list_id"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/join_task_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/join" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

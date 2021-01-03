@@ -12,8 +12,17 @@
     <string name="share_list_title">Share task list</string>
     <string name="copy_list_id">Copy the ID with any person you would like the share the task list with.</string>
     <string name="copy">Copy</string>
+    <string name="create_new_task_list">Create new task list</string>
+    <string name="create_new">Create new</string>
+    <string name="already_got_task_list">Already got a task list?</string>
+    <string name="join_task_list">Join task list</string>
+    <string name="join">Join</string>
+    <string name="task_list_id">Task list ID</string>
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="task_list_intro">Let\'s start by giving your task list a name.</string>
     <string name="task_list">Task list</string>
     <string name="logout">Logout</string>
+    <string name="switch_task_list">Switch task list</string>
     <string name="add_task">Add task to list</string>
+    <string name="task_executed">Task executed</string>
 </resources>

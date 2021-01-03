@@ -13,7 +13,7 @@ import kotlinx.android.synthetic.main.fragment_share_list.view.*
 
 
 class ShareListFragment(groupId: String) : Fragment() {
-    
+
     private var groupId: String = groupId
 
     override fun onCreate(savedInstanceState: Bundle?) {

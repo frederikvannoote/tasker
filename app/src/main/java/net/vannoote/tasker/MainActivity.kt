@@ -182,6 +182,12 @@ class MainActivity : AppCompatActivity(), Observer, TaskerInteraction {
             true
         }
 
+        R.id.switch_task_list -> {
+            // User chooses to join a new task list
+            showAddTaskListScreen()
+            true
+        }
+
         R.id.logout -> {
             // User chose the "Logout" action
 

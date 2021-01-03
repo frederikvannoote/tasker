@@ -11,6 +11,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import net.vannoote.tasker.R
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 
 class TaskAdapter(options: FirebaseRecyclerOptions<Task>) : FirebaseRecyclerAdapter<Task, TaskAdapter.TaskHolder>(options) {
@@ -41,7 +42,10 @@ class TaskAdapter(options: FirebaseRecyclerOptions<Task>) : FirebaseRecyclerAdap
             moment.isBefore(LocalDate.now()) -> { "Needs to be executed urgently" }
             moment == LocalDate.now() -> { "Needs to be executed today" }
             moment == LocalDate.now().plusDays(1) -> { "Tomorrow" }
-            else -> { moment.toString() }
+            else -> {
+                val diff = ChronoUnit.DAYS.between(LocalDate.now(), moment)
+                return "Needs to be executed in $diff days."
+            }
         }
     }
 

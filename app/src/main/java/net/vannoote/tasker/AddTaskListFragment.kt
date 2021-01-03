@@ -32,6 +32,13 @@ class AddTaskListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
                 mInteraction.showListScreen(groupId)
             }
         }
+
+        view.join_task_list.setOnClickListener {
+            val groupId = view.task_list_id.text.toString()
+            setList(groupId)
+            mInteraction.showListScreen(groupId)
+        }
+
         return view
     }
 
@@ -73,6 +80,13 @@ class AddTaskListFragment(taskerInteraction: TaskerInteraction) : Fragment() {
         }
 
         return key
+    }
+
+    private fun setList(groupId: String) {
+
+        // Set user info
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+        getDatabaseRef()?.child("users/$uid/group")?.setValue(groupId)
     }
 
     private fun getDatabaseRef(): DatabaseReference? {

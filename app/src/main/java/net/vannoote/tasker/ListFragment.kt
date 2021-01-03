@@ -114,9 +114,6 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
                                 .setAction(R.string.undo, View.OnClickListener {
                                         Log.i(LOGTAG, "Re-adding task with ID $taskId")
                                         FirebaseDatabase.getInstance().reference?.child("groups/$groupId/tasks/$taskId").setValue(removedTask)
-
-                                        taskListAdaptor!!.notifyItemInserted(viewHolder.adapterPosition)
-
                                 }).show()
                         }
                         direction == ItemTouchHelper.RIGHT -> {
@@ -129,7 +126,7 @@ class ListFragment(taskerInteraction: TaskerInteraction, p_groupId: String) : Fr
 
                             // Show notification
                             Toast.makeText(context,
-                                    "archived",
+                                    "Task executed",
                                     Toast.LENGTH_SHORT
                             ).show()
                         }

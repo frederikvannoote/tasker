@@ -10,6 +10,10 @@
         android:icon="@android:drawable/ic_menu_share"
         app:showAsAction="ifRoom" />
 
+    <item android:id="@+id/switch_task_list"
+        android:title="@string/switch_task_list"
+        app:showAsAction="never" />
+
     <item android:id="@+id/logout"
         android:title="@string/logout"
         app:showAsAction="never" />
